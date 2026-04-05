@@ -537,10 +537,11 @@ function checkWinSim(board, player) {
 
 // --- Multiplayer PeerJS Logic ---
 function initPeer() {
-    state.peer = new Peer();
+    const pin = Math.floor(1000 + Math.random() * 9000).toString();
+    state.peer = new Peer('tic-tac-pro-' + pin);
     
     state.peer.on('open', (id) => {
-        document.getElementById('myPeerId').innerText = id;
+        document.getElementById('myPeerId').innerText = pin;
     });
 
     // Handle Incoming Connection
@@ -553,6 +554,10 @@ function initPeer() {
     });
 
     state.peer.on('error', (err) => {
+        if (err.type === 'unavailable-id') {
+            initPeer(); // Retry if collision
+            return;
+        }
         Swal.fire('Connection Error', err.type, 'error');
     });
 }
@@ -565,8 +570,13 @@ document.getElementById('btnCopyId').addEventListener('click', () => {
 });
 
 document.getElementById('btnJoinMatch').addEventListener('click', () => {
-    const destId = document.getElementById('joinIdInput').value.trim();
+    let destId = document.getElementById('joinIdInput').value.trim();
     if (!destId) return;
+    
+    if (destId.length === 4) {
+        destId = 'tic-tac-pro-' + destId;
+    }
+
     
     const m = document.getElementById('btnJoinMatch');
     m.innerText = 'Connecting...';
