@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Pro's</title>
+    
+    <!-- SEO Optimization -->
+    <meta name="description" content="Tic Tac Pro's - A premium, multiplayer online Tic Tac Toe experience created by Zidan Shaji.">
+    
+    <!-- Google Fonts: Roboto & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 for premium alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- PeerJS for WebRTC Multiplayer -->
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-default">
+
+    <!-- Background Animation Elements -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- SCREEN 1: Setup Profile (Intro Screen) -->
+        <section id="screen-intro" class="screen active">
+            <div class="glass-panel text-center">
+                <h1 class="glow-text">Tic Tac Pro's</h1>
+                <p class="subtitle">Created by Zidan Shaji</p>
+                
+                <div class="form-group slide-in">
+                    <label for="usernameInput">Enter Your Username</label>
+                    <input type="text" id="usernameInput" placeholder="e.g. ProGamer99" autocomplete="off" maxlength="15">
+                </div>
+                
+                <div class="form-group slide-in" style="animation-delay: 0.1s;">
+                    <label>Choose Color Preference</label>
+                    <div class="color-picker">
+                        <div class="color-option theme-default active" data-theme="theme-default"></div>
+                        <div class="color-option theme-neon" data-theme="theme-neon"></div>
+                        <div class="color-option theme-sunset" data-theme="theme-sunset"></div>
+                        <div class="color-option theme-ocean" data-theme="theme-ocean"></div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary slide-in" id="btnEnterApp" style="animation-delay: 0.2s;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Enter App
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: Dashboard -->
+        <section id="screen-dashboard" class="screen hidden">
+            <!-- Header bar -->
+            <header class="glass-panel header-bar">
+                <div class="user-info">
+                    <div class="avatar"><i class="fa-solid fa-user-ninja"></i></div>
+                    <div>
+                        <h2 id="displayUsername" class="m-0">User</h2>
+                        <div class="stats-badge">Rank: <span id="displayRank">Bronze</span></div>
+                    </div>
+                </div>
+                <div class="win-streak-badge">
+                    <i class="fa-solid fa-fire text-orange"></i> Streak: <span id="displayStreak">0</span>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Quests Panel -->
+                <div class="glass-panel quests-panel delay-1">
+                    <h3><i class="fa-solid fa-scroll"></i> Daily Quests</h3>
+                    <ul class="quests-list" id="questsList">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+
+                <!-- Leaderboard Panel -->
+                <div class="glass-panel leaderboard-panel delay-2">
+                    <h3><i class="fa-solid fa-trophy text-gold"></i> Global Leaderboard</h3>
+                    <ul class="leaderboard-list" id="leaderboardList">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+
+                <!-- Action Panel -->
+                <div class="glass-panel action-panel delay-3">
+                    <h3>Play Now</h3>
+                    <button class="btn btn-secondary w-100 mb-3" id="btnTrainAi">
+                        <i class="fa-solid fa-robot"></i> Train vs AI
+                    </button>
+                    <button class="btn btn-primary w-100" id="btnPlayOnline">
+                        <i class="fa-solid fa-globe"></i> Play Online
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: Setup AI Match -->
+        <section id="screen-ai-setup" class="screen hidden">
+            <div class="glass-panel text-center">
+                <h2>Configure AI Training</h2>
+                <div class="difficulty-picker my-4">
+                    <button class="btn btn-outline diff-btn" data-diff="easy">Easy</button>
+                    <button class="btn btn-outline diff-btn active" data-diff="medium">Medium</button>
+                    <button class="btn btn-outline diff-btn" data-diff="hard">Hard</button>
+                </div>
+                <div class="d-flex justify-between">
+                    <button class="btn btn-secondary" id="btnBackToDashFromAI">Back</button>
+                    <button class="btn btn-primary" id="btnStartAIMatch">Start Match</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: Multiplayer Lobby -->
+        <section id="screen-multiplayer-lobby" class="screen hidden">
+            <div class="glass-panel text-center">
+                <h2>Multiplayer Lobby</h2>
+                <p>Share your code or join a friend.</p>
+                <div class="my-4">
+                    <div class="info-box">
+                        <small>Your Join Code:</small>
+                        <h3 id="myPeerId" class="glow-text">Loading...</h3>
+                        <button class="btn btn-sm btn-secondary mt-2" id="btnCopyId"><i class="fa-regular fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+                <div class="form-group my-4">
+                    <label for="joinIdInput">Join opponent by ID:</label>
+                    <input type="text" id="joinIdInput" placeholder="Paste Code Here">
+                </div>
+                <div class="d-flex justify-between mt-4">
+                    <button class="btn btn-secondary" id="btnBackToDashFromMP">Back</button>
+                    <button class="btn btn-primary" id="btnJoinMatch">Connect</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 5: Verses Intro (Pre-match) -->
+        <section id="screen-verses" class="screen hidden">
+            <div class="verses-container d-flex align-center justify-between">
+                <!-- Player 1 -->
+                <div class="player-card glass-panel text-center slide-in-left">
+                    <div class="avatar lg"><i class="fa-solid fa-user-ninja"></i></div>
+                    <h2 id="vsPlayer1Name">Player 1</h2>
+                    <p class="badge">Rank: <span id="vsPlayer1Rank">Bronze</span></p>
+                </div>
+                
+                <div class="vs-text zoom-in">
+                    <h1 class="glow-text">VS</h1>
+                </div>
+
+                <!-- Player 2 -->
+                <div class="player-card glass-panel text-center slide-in-right delay-1">
+                    <div class="avatar lg"><i class="fa-solid fa-robot"></i></div>
+                    <h2 id="vsPlayer2Name">Opponent</h2>
+                    <p class="badge">Rank: <span id="vsPlayer2Rank">Unranked</span></p>
+                </div>
+            </div>
+            <!-- Auto-transitions to Game Screen via JS -->
+        </section>
+
+        <!-- SCREEN 6: Game Board -->
+        <section id="screen-game" class="screen hidden">
+            <div class="game-header glass-panel d-flex justify-between align-center mb-4">
+                <div class="player-score">
+                    <span id="p1NameLabel">You (X)</span>: <strong id="p1ScoreLabel">0</strong>
+                </div>
+                <div class="turn-indicator" id="turnIndicator">
+                    Your Turn
+                </div>
+                <div class="player-score text-right">
+                    <span id="p2NameLabel">Opponent (O)</span>: <strong id="p2ScoreLabel">0</strong>
+                </div>
+            </div>
+            
+            <div class="match-info text-center mb-2">Match: First to 5 Points | Win Streak is on the line!</div>
+
+            <div class="board-container glass-panel">
+                <div class="board" id="gameBoard">
+                    <div class="cell" data-index="0"></div>
+                    <div class="cell" data-index="1"></div>
+                    <div class="cell" data-index="2"></div>
+                    <div class="cell" data-index="3"></div>
+                    <div class="cell" data-index="4"></div>
+                    <div class="cell" data-index="5"></div>
+                    <div class="cell" data-index="6"></div>
+                    <div class="cell" data-index="7"></div>
+                    <div class="cell" data-index="8"></div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-secondary" id="btnQuitMatch">Leave Session</button>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
