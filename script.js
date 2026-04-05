@@ -381,9 +381,6 @@ function handleRoundEnd(playerWon) {
     
     updateScoreUI();
 
-    // Alternate starting player
-    state.isHost = !state.isHost;
-
     if (state.matchScore.p1 >= 5) {
         triggerMatchEnd(true);
     } else if (state.matchScore.p2 >= 5) {
