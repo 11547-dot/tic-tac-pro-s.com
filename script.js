@@ -90,14 +90,25 @@ function getRank(wins) {
     return 'Diamond 💎';
 }
 
+let dbAuth = JSON.parse(localStorage.getItem('ticTacPro_DB')) || [];
+let activeSessionEmail = localStorage.getItem('ticTacPro_Session') || null;
+
 function saveData() {
-    localStorage.setItem('ticTacProUser', JSON.stringify(state.user));
+    if(!activeSessionEmail) return;
+    const userIdx = dbAuth.findIndex(u => u.email === activeSessionEmail);
+    if(userIdx > -1) {
+        dbAuth[userIdx].userState = state.user;
+    } else {
+        dbAuth.push({ email: activeSessionEmail, userState: state.user });
+    }
+    localStorage.setItem('ticTacPro_DB', JSON.stringify(dbAuth));
 }
 
 function loadData() {
-    const data = localStorage.getItem('ticTacProUser');
-    if (data) {
-        state.user = { ...state.user, ...JSON.parse(data) };
+    if(!activeSessionEmail) return false;
+    const user = dbAuth.find(u => u.email === activeSessionEmail);
+    if (user && user.userState) {
+        state.user = { ...state.user, ...user.userState };
         
         // Force update quests to match new requirements
         if (state.user.quests && state.user.quests[0]) {
@@ -172,7 +183,7 @@ function updateQuest(id, amount) {
     }
 }
 
-// --- Intro Logic ---
+// --- Intro & Auth Logic ---
 document.querySelectorAll('.color-option').forEach(opt => {
     opt.addEventListener('click', (e) => {
         document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
@@ -183,16 +194,96 @@ document.querySelectorAll('.color-option').forEach(opt => {
     });
 });
 
+document.getElementById('tabLogin').addEventListener('click', () => {
+    document.getElementById('tabLogin').classList.add('active');
+    document.getElementById('tabSignup').classList.remove('active');
+    document.getElementById('paneLogin').classList.replace('hidden', 'active');
+    document.getElementById('paneSignup').classList.replace('active', 'hidden');
+});
+
+document.getElementById('tabSignup').addEventListener('click', () => {
+    document.getElementById('tabSignup').classList.add('active');
+    document.getElementById('tabLogin').classList.remove('active');
+    document.getElementById('paneSignup').classList.replace('hidden', 'active');
+    document.getElementById('paneLogin').classList.replace('active', 'hidden');
+});
+
+document.getElementById('signupPassword').addEventListener('input', (e) => {
+    const pwd = e.target.value;
+    const label = document.getElementById('pwdSecurityLabel');
+    const bar = document.getElementById('pwdStrengthBar');
+    if(pwd.length === 0) {
+        label.innerText = 'Strength: None'; bar.style.width = '0%'; bar.style.background = 'transparent';
+    } else if(pwd.length < 8) {
+        label.innerText = 'Strength: Weak (Min 8 chars)'; bar.style.width = '33%'; bar.style.background = 'var(--x-color)';
+    } else if(/(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])/.test(pwd)) {
+        label.innerText = 'Strength: Strong'; bar.style.width = '100%'; bar.style.background = 'var(--o-color)';
+    } else if(/(?=.*[A-Za-z])(?=.*\d)/.test(pwd)) {
+        label.innerText = 'Strength: Medium'; bar.style.width = '66%'; bar.style.background = 'var(--text-orange)';
+    } else {
+        label.innerText = 'Strength: Weak'; bar.style.width = '33%'; bar.style.background = 'var(--x-color)';
+    }
+});
+
 document.getElementById('btnEnterApp').addEventListener('click', () => {
+    const email = document.getElementById('signupEmail').value.trim();
+    const pwd = document.getElementById('signupPassword').value;
     const userInp = document.getElementById('usernameInput').value.trim();
-    if(!userInp) {
-        Swal.fire('Wait!', 'Please enter a username.', 'warning');
+    
+    if(!email || !pwd || !userInp) {
+        Swal.fire('Wait!', 'Please fill all fields.', 'warning');
         return;
     }
+    if(pwd.length < 8) {
+        Swal.fire('Weak Password', 'Password must be at least 8 characters.', 'warning');
+        return;
+    }
+    if(dbAuth.find(u => u.email === email)) {
+        Swal.fire('Error', 'Email is already in use.', 'error');
+        return;
+    }
+    
     state.user.username = userInp;
+    activeSessionEmail = email;
+    localStorage.setItem('ticTacPro_Session', email);
+    
+    dbAuth.push({ email: email, password: pwd, userState: state.user });
     saveData();
+    
     updateDashboard();
     switchScreen('dashboard');
+});
+
+document.getElementById('btnDoLogin').addEventListener('click', () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pwd = document.getElementById('loginPassword').value;
+    
+    if(!email || !pwd) {
+        Swal.fire('Wait!', 'Enter email and password.', 'warning');
+        return;
+    }
+    const user = dbAuth.find(u => u.email === email);
+    if(!user) {
+        Swal.fire('Error', 'Account not found.', 'error');
+        return;
+    }
+    if(user.password !== pwd) {
+        Swal.fire('Error', 'Incorrect password.', 'error');
+        return;
+    }
+    
+    activeSessionEmail = email;
+    localStorage.setItem('ticTacPro_Session', email);
+    
+    if (loadData() && state.user.username) {
+        updateDashboard();
+        switchScreen('dashboard');
+    }
+});
+
+document.getElementById('btnLogout').addEventListener('click', () => {
+    localStorage.removeItem('ticTacPro_Session');
+    location.reload();
 });
 
 // Initialization
@@ -619,25 +710,3 @@ function setupConnection(c, IAmHost) {
     });
 }
 
- / /   - - -   A I   H e l p e r   - - - 
- d o c u m e n t . g e t E l e m e n t B y I d ( ' b t n A i H e l p e r ' ) . a d d E v e n t L i s t e n e r ( ' c l i c k ' ,   ( )   = >   { 
-         i f   ( ! s t a t e . i s R o u n d A c t i v e   | |   ! s t a t e . i s P l a y e r T u r n )   { 
-                 S w a l . f i r e ( {   t o a s t :   t r u e ,   p o s i t i o n :   ' t o p ' ,   t i t l e :   ' W a i t   f o r   y o u r   t u r n ! ' ,   t i m e r :   1 5 0 0 ,   s h o w C o n f i r m B u t t o n :   f a l s e ,   b a c k g r o u n d :   ' v a r ( - - p a n e l - b g ) ' ,   c o l o r :   ' # f f f '   } ) ; 
-                 r e t u r n ; 
-         } 
-         
-         / /   P a s s   a   c o p y   o f   t h e   b o a r d   t o   p r e v e n t   a c c i d e n t a l   r e f e r e n c e   m u t a t i o n 
-         c o n s t   o p t i m a l   =   g e t B e s t M o v e ( [ . . . s t a t e . b o a r d ] ,   s t a t e . p l a y e r S y m b o l ) ; 
-         i f   ( o p t i m a l   & &   o p t i m a l . i n d e x   ! = =   u n d e f i n e d )   { 
-                 c o n s t   c e l l   =   d o c u m e n t . q u e r y S e l e c t o r ( \ [ d a t a - i n d e x = \  
- \ \ ] \ ) ; 
-                 i f   ( c e l l )   { 
-                         c e l l . c l a s s L i s t . a d d ( ' h i n t - p u l s e ' ) ; 
-                         s e t T i m e o u t ( ( )   = >   { 
-                                 c e l l . c l a s s L i s t . r e m o v e ( ' h i n t - p u l s e ' ) ; 
-                         } ,   1 0 0 0 ) ; 
-                 } 
-         } 
- } ) ; 
-  
- 

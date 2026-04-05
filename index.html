@@ -33,30 +33,66 @@
     </div>
 
     <div class="app-container">
-        <!-- SCREEN 1: Setup Profile (Intro Screen) -->
+        <!-- SCREEN 1: Auth Screen -->
         <section id="screen-intro" class="screen active">
-            <div class="glass-panel text-center">
-                <h1 class="glow-text">Tic Tac Pro's</h1>
-                <p class="subtitle">Created by Zidan Shaji</p>
+            <div class="glass-panel auth-panel">
+                <h1 class="glow-text text-center">Tic Tac Pro's</h1>
+                <p class="subtitle text-center">Created by Zidan Shaji</p>
                 
-                <div class="form-group slide-in">
-                    <label for="usernameInput">Enter Your Username</label>
-                    <input type="text" id="usernameInput" placeholder="e.g. ProGamer99" autocomplete="off" maxlength="15">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tabLogin">Login</button>
+                    <button class="auth-tab" id="tabSignup">Sign Up</button>
                 </div>
-                
-                <div class="form-group slide-in" style="animation-delay: 0.1s;">
-                    <label>Choose Color Preference</label>
-                    <div class="color-picker">
-                        <div class="color-option theme-default active" data-theme="theme-default"></div>
-                        <div class="color-option theme-neon" data-theme="theme-neon"></div>
-                        <div class="color-option theme-sunset" data-theme="theme-sunset"></div>
-                        <div class="color-option theme-ocean" data-theme="theme-ocean"></div>
+
+                <!-- Login Form -->
+                <div id="paneLogin" class="auth-pane active slide-in">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
                     </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary w-100 mt-3" id="btnDoLogin">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login
+                    </button>
                 </div>
-                
-                <button class="btn btn-primary slide-in" id="btnEnterApp" style="animation-delay: 0.2s;">
-                    <i class="fa-solid fa-right-to-bracket"></i> Enter App
-                </button>
+
+                <!-- Sign Up Form -->
+                <div id="paneSignup" class="auth-pane hidden slide-in" style="animation-delay: 0s;">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="signupEmail" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password (min 8 chars)</label>
+                        <input type="password" id="signupPassword" placeholder="••••••••">
+                        <div class="password-security mt-1">
+                            <small id="pwdSecurityLabel">Strength: None</small>
+                            <div class="strength-meter mt-1">
+                                <div class="strength-bar" id="pwdStrengthBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="usernameInput" placeholder="e.g. ProGamer99" autocomplete="off" maxlength="15">
+                    </div>
+                    <div class="form-group">
+                        <label>Choose Color Preference</label>
+                        <div class="color-picker">
+                            <div class="color-option theme-default active" data-theme="theme-default"></div>
+                            <div class="color-option theme-neon" data-theme="theme-neon"></div>
+                            <div class="color-option theme-sunset" data-theme="theme-sunset"></div>
+                            <div class="color-option theme-ocean" data-theme="theme-ocean"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" id="btnEnterApp">
+                        <i class="fa-solid fa-user-plus"></i> Create Account
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -71,8 +107,11 @@
                         <div class="stats-badge">Rank: <span id="displayRank">Bronze</span></div>
                     </div>
                 </div>
-                <div class="win-streak-badge">
-                    <i class="fa-solid fa-fire text-orange"></i> Streak: <span id="displayStreak">0</span>
+                <div class="header-actions" style="display:flex; align-items:center;">
+                    <div class="win-streak-badge mr-2">
+                        <i class="fa-solid fa-fire text-orange"></i> Streak: <span id="displayStreak">0</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline" id="btnLogout" title="Log Out" style="background:var(--overlay); color:var(--text); border:1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-power-off"></i></button>
                 </div>
             </header>
 
