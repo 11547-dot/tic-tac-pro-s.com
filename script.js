@@ -383,14 +383,6 @@ function handleRoundEnd(playerWon) {
 
     // Alternate starting player
     state.isHost = !state.isHost;
-    
-    // Swap symbols so whoever starts plays as X
-    const temp = state.playerSymbol;
-    state.playerSymbol = state.opponentSymbol;
-    state.opponentSymbol = temp;
-    
-    document.getElementById('p1NameLabel').innerText = state.user.username + ` (${state.playerSymbol.toUpperCase()})`;
-    document.getElementById('p2NameLabel').innerText = state.opponent.name + ` (${state.opponentSymbol.toUpperCase()})`;
 
     if (state.matchScore.p1 >= 5) {
         triggerMatchEnd(true);
