@@ -736,3 +736,36 @@ function setupConnection(c, IAmHost) {
     });
 }
 
+function handleGoogleAuth() {
+    Swal.fire({
+        title: 'Authenticating with Google...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+    
+    setTimeout(() => {
+        const dummyGoogleEmail = "player.google@gmail.com";
+        const dummyUsername = "GooglePlayer";
+        
+        let user = dbAuth.find(u => u.email === dummyGoogleEmail);
+        if(!user) {
+            const theme = document.querySelector('.color-option.active') ? document.querySelector('.color-option.active').getAttribute('data-theme') : 'theme-default';
+            state.user.username = dummyUsername;
+            state.user.color = theme;
+            dbAuth.push({ email: dummyGoogleEmail, password: 'google_oauth_bypass', userState: state.user });
+            activeSessionEmail = dummyGoogleEmail;
+        } else {
+            activeSessionEmail = dummyGoogleEmail;
+            loadData();
+        }
+        
+        localStorage.setItem('ticTacPro_Session', activeSessionEmail);
+        saveData();
+        Swal.close();
+        updateDashboard();
+        switchScreen('dashboard');
+    }, 1500);
+}
+
+document.getElementById('btnGoogleLogin').addEventListener('click', handleGoogleAuth);
+document.getElementById('btnGoogleSignup').addEventListener('click', handleGoogleAuth);
