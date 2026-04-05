@@ -618,3 +618,26 @@ function setupConnection(c, IAmHost) {
         state.conn = null;
     });
 }
+
+ / /   - - -   A I   H e l p e r   - - - 
+ d o c u m e n t . g e t E l e m e n t B y I d ( ' b t n A i H e l p e r ' ) . a d d E v e n t L i s t e n e r ( ' c l i c k ' ,   ( )   = >   { 
+         i f   ( ! s t a t e . i s R o u n d A c t i v e   | |   ! s t a t e . i s P l a y e r T u r n )   { 
+                 S w a l . f i r e ( {   t o a s t :   t r u e ,   p o s i t i o n :   ' t o p ' ,   t i t l e :   ' W a i t   f o r   y o u r   t u r n ! ' ,   t i m e r :   1 5 0 0 ,   s h o w C o n f i r m B u t t o n :   f a l s e ,   b a c k g r o u n d :   ' v a r ( - - p a n e l - b g ) ' ,   c o l o r :   ' # f f f '   } ) ; 
+                 r e t u r n ; 
+         } 
+         
+         / /   P a s s   a   c o p y   o f   t h e   b o a r d   t o   p r e v e n t   a c c i d e n t a l   r e f e r e n c e   m u t a t i o n 
+         c o n s t   o p t i m a l   =   g e t B e s t M o v e ( [ . . . s t a t e . b o a r d ] ,   s t a t e . p l a y e r S y m b o l ) ; 
+         i f   ( o p t i m a l   & &   o p t i m a l . i n d e x   ! = =   u n d e f i n e d )   { 
+                 c o n s t   c e l l   =   d o c u m e n t . q u e r y S e l e c t o r ( \ [ d a t a - i n d e x = \  
+ \ \ ] \ ) ; 
+                 i f   ( c e l l )   { 
+                         c e l l . c l a s s L i s t . a d d ( ' h i n t - p u l s e ' ) ; 
+                         s e t T i m e o u t ( ( )   = >   { 
+                                 c e l l . c l a s s L i s t . r e m o v e ( ' h i n t - p u l s e ' ) ; 
+                         } ,   1 0 0 0 ) ; 
+                 } 
+         } 
+ } ) ; 
+  
+ 
