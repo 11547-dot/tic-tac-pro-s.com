@@ -398,11 +398,37 @@ document.getElementById('gameBoard').addEventListener('click', (e) => {
     const idx = parseInt(cell.getAttribute('data-index'));
     
     if (state.board[idx] === null) {
+        
+        // Determine Optimal Move before executing
+        let optimalIdx = -1;
+        const available = state.board.filter(v => v === null).length;
+        if(available > 0) {
+            const optimal = getBestMove([...state.board], state.playerSymbol);
+            if(optimal) optimalIdx = optimal.index;
+        }
+
         makeMove(idx, state.playerSymbol);
         
+        // Output Coach Feedback
+        const cb = document.getElementById('coachFeedback');
+        const ct = document.getElementById('coachText');
+        if (state.isRoundActive) {
+            cb.classList.remove('hidden', 'good', 'bad');
+            if (optimalIdx === idx || optimalIdx === -1) {
+                cb.classList.add('good');
+                ct.innerText = "Excellent move! Mathematically solid.";
+            } else {
+                cb.classList.add('bad');
+                ct.innerText = "Inaccuracy! An opponent could punish this.";
+            }
+        } else {
+            cb.classList.add('hidden');
+        }
+
         if (state.gameMode === 'multiplayer' && state.conn) {
             state.conn.send({ type: 'MOVE', index: idx });
         } else if (state.gameMode === 'ai' && state.isRoundActive) {
+            cb.classList.add('hidden'); // Hide on bot turn if preferred, or keep it. Let's hide while waiting for bot.
             setTimeout(makeAIMove, 600 + Math.random() * 400); // Simulate thinking
         }
     }

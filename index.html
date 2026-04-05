@@ -57,6 +57,10 @@
                     <button class="btn btn-primary w-100 mt-3" id="btnDoLogin">
                         <i class="fa-solid fa-right-to-bracket"></i> Login
                     </button>
+                    <div class="auth-divider"><span>OR</span></div>
+                    <button class="btn btn-google w-100" id="btnGoogleLogin">
+                        <i class="fa-brands fa-google"></i> Sign in with Google
+                    </button>
                 </div>
 
                 <!-- Sign Up Form -->
@@ -91,6 +95,10 @@
                     
                     <button class="btn btn-primary w-100" id="btnEnterApp">
                         <i class="fa-solid fa-user-plus"></i> Create Account
+                    </button>
+                    <div class="auth-divider"><span>OR</span></div>
+                    <button class="btn btn-google w-100" id="btnGoogleSignup">
+                        <i class="fa-brands fa-google"></i> Sign up with Google
                     </button>
                 </div>
             </div>
@@ -224,7 +232,11 @@
             
             <div class="match-info text-center mb-2">Match: First to 5 Points | Win Streak is on the line!</div>
 
-            <div class="board-container glass-panel">
+            <div id="coachFeedback" class="coach-box hidden">
+                <i class="fa-solid fa-robot"></i> <span id="coachText">AI Coach is watching...</span>
+            </div>
+
+            <div class="board-container glass-panel mt-2">
                 <div class="board" id="gameBoard">
                     <div class="cell" data-index="0"></div>
                     <div class="cell" data-index="1"></div>
